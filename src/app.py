@@ -101,11 +101,11 @@ def get_people():
 @app.route('/people', methods=['POST'])
 def add_people():
 
-    request_people = request.get_json()  
-    new_people = People(name=request_people['name'], description=request_people['description'])
+    request_body_people = request.get_json()  
+    new_people = People(name=request_body_people['name'], description=request_body_people['description'])
     db.session.add(new_people)
     db.session.commit()
-    return jsonify('people added:',request_people), 200
+    return jsonify('people added:',request_body_people), 200
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
