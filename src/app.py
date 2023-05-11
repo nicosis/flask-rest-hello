@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, Planets, People
 #from models import Person
 
 app = Flask(__name__)
@@ -45,30 +45,23 @@ def get_users():
 @app.route('/user', methods=['POST'])
 def add_users():
 
-    request_body_user = request.get_json()
-    
+    request_body_user = request.get_json()  
     new_user = User(email=request_body_user['email'], password=request_body_user['password'])
     db.session.add(new_user)
     db.session.commit()
-
     return jsonify('user added:',request_body_user), 200
 
 @app.route('/user/<int:user_id>', methods=['PUT'])
 def update_users(user_id):
 
     request_body_user = request.get_json()
-
     user1 = User.query.get(user_id)
     if user1 is None:
         raise APIException('watafak! no encontrado...', status_code=404)
-
     if 'email' in request_body_user:
         user1.email = request_body_user['email']    
-
     db.session.commit()
-    
     return jsonify('funky user editado:',request_body_user), 200
-
 
 @app.route('/user/<int:user_id>', methods=['DELETE'])
 def delete_users(user_id):
@@ -76,11 +69,43 @@ def delete_users(user_id):
     user1 = User.query.get(user_id)
     if user1 is None:
         raise APIException('watafak! no encontrado...', status_code=404)
-
     db.session.delete(user1)
     db.session.commit()
-    
     return jsonify('funky user borrado'), 200
+
+# planets
+@app.route('/planets', methods=['GET'])
+def get_planets():
+
+    planets = Planets.query.all()
+    all_planets = list(map(lambda x: x.serialize(), planets))
+    return jsonify(all_planets), 200
+
+@app.route('/planets', methods=['POST'])
+def add_planet():
+
+    request_body_planet = request.get_json()  
+    new_planet = Planets(name=request_body_planet['name'], description=request_body_planet['description'], population=request_body_planet['population'])
+    db.session.add(new_planet)
+    db.session.commit()
+    return jsonify('planeta added:',request_body_planet), 200
+
+# people
+@app.route('/people', methods=['GET'])
+def get_people():
+
+    people = People.query.all()
+    all_people = list(map(lambda x: x.serialize(), people))
+    return jsonify(all_people), 200
+
+@app.route('/people', methods=['POST'])
+def add_people():
+
+    request_people = request.get_json()  
+    new_people = People(name=request_people['name'], description=request_people['description'])
+    db.session.add(new_people)
+    db.session.commit()
+    return jsonify('people added:',request_people), 200
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
