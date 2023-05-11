@@ -37,13 +37,50 @@ def sitemap():
     return generate_sitemap(app)
 
 @app.route('/user', methods=['GET'])
-def handle_hello():
+def get_users():
+    users = User.query.all()
+    all_users = list(map(lambda x: x.serialize(), users))
+    return jsonify(all_users), 200
 
-    response_body = {
-        "msg": "Hello, this is your GET /user response "
-    }
+@app.route('/user', methods=['POST'])
+def add_users():
 
-    return jsonify(response_body), 200
+    request_body_user = request.get_json()
+    
+    new_user = User(email=request_body_user['email'], password=request_body_user['password'])
+    db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify('user added:',request_body_user), 200
+
+@app.route('/user/<int:user_id>', methods=['PUT'])
+def update_users(user_id):
+
+    request_body_user = request.get_json()
+
+    user1 = User.query.get(user_id)
+    if user1 is None:
+        raise APIException('watafak! no encontrado...', status_code=404)
+
+    if 'email' in request_body_user:
+        user1.email = request_body_user['email']    
+
+    db.session.commit()
+    
+    return jsonify('funky user editado:',request_body_user), 200
+
+
+@app.route('/user/<int:user_id>', methods=['DELETE'])
+def delete_users(user_id):
+
+    user1 = User.query.get(user_id)
+    if user1 is None:
+        raise APIException('watafak! no encontrado...', status_code=404)
+
+    db.session.delete(user1)
+    db.session.commit()
+    
+    return jsonify('funky user borrado'), 200
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
