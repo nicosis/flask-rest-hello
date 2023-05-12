@@ -73,7 +73,7 @@ def delete_users(user_id):
     db.session.commit()
     return jsonify('funky user borrado'), 200
 
-# planets
+# get all planets
 @app.route('/planets', methods=['GET'])
 def get_planets():
 
@@ -90,6 +90,7 @@ def get_single_planet(planets_id):
         raise APIException('watafank! ese planeta no existe...', status_code=404)
     return jsonify(single_planet.serialize()), 200
 
+# agregar planeta
 @app.route('/planets', methods=['POST'])
 def add_planet():
 
@@ -97,9 +98,9 @@ def add_planet():
     new_planet = Planets(name=request_body_planet['name'], description=request_body_planet['description'], population=request_body_planet['population'])
     db.session.add(new_planet)
     db.session.commit()
-    return jsonify('planeta added:',request_body_planet), 200
+    return jsonify('planeta added:',new_planet.serialize()), 200
 
-# people get
+# get all people
 @app.route('/people', methods=['GET'])
 def get_people():
 
@@ -107,6 +108,16 @@ def get_people():
     all_people = list(map(lambda x: x.serialize(), people))
     return jsonify(all_people), 200
 
+# get single people
+@app.route('/people/<int:people_id>', methods=['GET'])
+def get_single_people(people_id):
+
+    single_people = People.query.get(people_id)
+    if single_people is None:
+        raise APIException('watafank! esa persona no existe...', status_code=404)
+    return jsonify(single_people.serialize()), 200
+
+# agrregar people
 @app.route('/people', methods=['POST'])
 def add_people():
 
@@ -114,7 +125,7 @@ def add_people():
     new_people = People(name=request_body_people['name'], description=request_body_people['description'])
     db.session.add(new_people)
     db.session.commit()
-    return jsonify('people added:',request_body_people), 200
+    return jsonify('people added:',new_people.serialize()), 200
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
