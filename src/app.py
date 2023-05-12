@@ -81,6 +81,15 @@ def get_planets():
     all_planets = list(map(lambda x: x.serialize(), planets))
     return jsonify(all_planets), 200
 
+# get single planet
+@app.route('/planets/<int:planets_id>', methods=['GET'])
+def get_single_planet(planets_id):
+
+    single_planet = Planets.query.get(planets_id)
+    if single_planet is None:
+        raise APIException('watafank! ese planeta no existe...', status_code=404)
+    return jsonify(single_planet.serialize()), 200
+
 @app.route('/planets', methods=['POST'])
 def add_planet():
 
@@ -90,7 +99,7 @@ def add_planet():
     db.session.commit()
     return jsonify('planeta added:',request_body_planet), 200
 
-# people
+# people get
 @app.route('/people', methods=['GET'])
 def get_people():
 
